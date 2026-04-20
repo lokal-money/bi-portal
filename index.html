@@ -244,9 +244,71 @@ body::before {
 ::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-track { background: var(--bg); }
 ::-webkit-scrollbar-thumb { background: var(--panel2); border-radius: 3px; }
+
+/* ── LOGIN ── */
+.login-overlay {
+  position: fixed; inset: 0; z-index: 9999;
+  background: #0a0f1a;
+  display: flex; align-items: center; justify-content: center;
+  transition: opacity .4s;
+}
+.login-overlay.hidden { opacity: 0; pointer-events: none; }
+.login-card {
+  background: #111827; border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 18px; padding: 40px 44px;
+  width: 100%; max-width: 380px;
+  display: flex; flex-direction: column; align-items: center; gap: 22px;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.5);
+}
+.login-logo {
+  width: 52px; height: 52px;
+  background: linear-gradient(135deg, #00c2a8, #00a88f);
+  border-radius: 13px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 800; font-size: 22px; color: #fff;
+  box-shadow: 0 0 28px rgba(0,194,168,0.35);
+}
+.login-title { font-weight: 700; font-size: 18px; color: #e2e8f0; }
+.login-sub { font-size: 13px; color: #64748b; margin-top: -14px; }
+.login-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: #64748b; }
+.login-input {
+  width: 100%; background: #1a2333; border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 9px; padding: 11px 14px;
+  font-family: 'Barlow', sans-serif; font-size: 14px; color: #e2e8f0;
+  outline: none; transition: border-color .2s;
+}
+.login-input:focus { border-color: rgba(0,194,168,0.5); }
+.login-btn {
+  width: 100%; background: linear-gradient(135deg, #00c2a8, #00a88f);
+  border: none; border-radius: 9px; padding: 12px;
+  font-family: 'Barlow', sans-serif; font-size: 14px; font-weight: 700; color: #fff;
+  cursor: pointer; transition: opacity .2s;
+}
+.login-btn:hover { opacity: 0.88; }
+.login-error { font-size: 12.5px; color: #e85d5d; display: none; }
+.login-error.show { display: block; }
+@keyframes shake { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-6px);} 75%{transform:translateX(6px);} }
+
 </style>
 </head>
 <body>
+
+<div class="login-overlay" id="loginOverlay">
+  <div class="login-card">
+    <div class="login-logo">LM</div>
+    <div class="login-title">Lokal Money BI</div>
+    <div class="login-sub">Acceso restringido</div>
+    <div style="width:100%;display:flex;flex-direction:column;gap:6px;">
+      <div class="login-label">Contraseña</div>
+      <input class="login-input" type="password" id="loginPass"
+             placeholder="••••••••" onkeydown="if(event.key==='Enter') doLogin()"/>
+    </div>
+    <div class="login-error" id="loginError">Contraseña incorrecta</div>
+    <button class="login-btn" onclick="doLogin()">Ingresar →</button>
+  </div>
+</div>
+
 
 <header class="header">
   <div class="logo-wrap">
@@ -346,6 +408,31 @@ function filterCards() {
 
 // Init
 buildCards(MERCHANTS);
+
+const ACCESS_PASSWORD = 'lokalbi2026';
+const SESSION_KEY = 'lm_bi_auth';
+function doLogin() {
+  const val = document.getElementById('loginPass').value;
+  const err = document.getElementById('loginError');
+  if (val === ACCESS_PASSWORD) {
+    try { sessionStorage.setItem(SESSION_KEY, '1'); } catch(e){}
+    const o = document.getElementById('loginOverlay');
+    o.classList.add('hidden');
+    setTimeout(() => o.style.display='none', 400);
+    err.classList.remove('show');
+  } else {
+    err.classList.add('show');
+    document.getElementById('loginPass').value = '';
+    document.getElementById('loginPass').focus();
+  }
+}
+(function(){
+  let authed = false;
+  try { authed = sessionStorage.getItem(SESSION_KEY)==='1'; } catch(e){}
+  if (authed) { document.getElementById('loginOverlay').style.display='none'; }
+  else { setTimeout(()=>document.getElementById('loginPass').focus(),100); }
+})();
+
 </script>
 </body>
 </html>
