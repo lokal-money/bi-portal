@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Lokal Money BI — Portal de Dashboards</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600;700;800&family=Barlow+Condensed:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg: #0a0f1a;
+  --panel: #111827;
+  --panel2: #1a2333;
+  --teal: #00c2a8;
+  --teal2: #00a88f;
+  --gold: #f5a623;
+  --muted: #64748b;
+  --text: #e2e8f0;
+  --border: rgba(255,255,255,0.06);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Barlow', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── BACKGROUND GRID ── */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image:
+    linear-gradient(rgba(0,194,168,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,194,168,0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── HEADER ── */
+.header {
+  position: relative; z-index: 10;
+  padding: 36px 48px 32px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  background: linear-gradient(180deg, rgba(0,194,168,0.04) 0%, transparent 100%);
+}
+
+.logo-wrap { display: flex; align-items: center; gap: 14px; }
+.logo-badge {
+  width: 48px; height: 48px;
+  background: linear-gradient(135deg, var(--teal), var(--teal2));
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 800; font-size: 20px; color: #fff;
+  letter-spacing: -1px;
+  box-shadow: 0 0 24px rgba(0,194,168,0.3);
+}
+.logo-text {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700; font-size: 22px; letter-spacing: 0.5px;
+}
+.logo-text span { color: var(--teal); }
+
+.header-right { text-align: right; }
+.header-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 13px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 2px;
+  color: var(--muted);
+}
+.merchant-count {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 28px; font-weight: 800;
+  color: var(--teal);
+  line-height: 1;
+  margin-top: 2px;
+}
+.merchant-count span { font-size: 14px; color: var(--muted); font-weight: 500; }
+
+/* ── SEARCH ── */
+.search-wrap {
+  position: relative; z-index: 10;
+  padding: 24px 48px;
+  border-bottom: 1px solid var(--border);
+  display: flex; gap: 12px; align-items: center;
+}
+.search-input {
+  flex: 1; max-width: 420px;
+  background: var(--panel2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 16px 10px 40px;
+  color: var(--text);
+  font-family: 'Barlow', sans-serif;
+  font-size: 14px;
+  outline: none;
+  transition: border-color .2s;
+}
+.search-input:focus { border-color: rgba(0,194,168,0.4); }
+.search-input::placeholder { color: var(--muted); }
+.search-icon {
+  position: absolute; left: 64px;
+  top: 50%; transform: translateY(-50%);
+  color: var(--muted); font-size: 15px; pointer-events: none;
+}
+.result-count {
+  font-size: 12px; color: var(--muted);
+  margin-left: 4px;
+}
+
+/* ── GRID ── */
+.main {
+  position: relative; z-index: 10;
+  padding: 32px 48px 64px;
+  max-width: 1400px; margin: 0 auto;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+/* ── CARD ── */
+.card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px 22px;
+  text-decoration: none;
+  color: inherit;
+  display: flex; flex-direction: column; gap: 12px;
+  position: relative; overflow: hidden;
+  transition: transform .2s, border-color .2s, box-shadow .2s;
+  animation: fadeUp .4s ease both;
+}
+.card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(0,194,168,0.35);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3), 0 0 0 1px rgba(0,194,168,0.1);
+}
+.card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, var(--teal), transparent);
+  opacity: 0; transition: opacity .2s;
+}
+.card:hover::before { opacity: 1; }
+
+.card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+.card-avatar {
+  width: 38px; height: 38px; border-radius: 9px; flex-shrink: 0;
+  background: linear-gradient(135deg, var(--teal2), rgba(0,194,168,0.3));
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 800; font-size: 16px; color: #fff;
+}
+.card-arrow {
+  color: var(--muted); font-size: 18px;
+  transition: transform .2s, color .2s;
+  margin-top: 2px;
+}
+.card:hover .card-arrow { transform: translate(3px, -3px); color: var(--teal); }
+
+.card-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700; font-size: 17px; letter-spacing: 0.2px;
+  line-height: 1.2;
+}
+.card-url {
+  font-size: 11px; color: var(--muted);
+  font-family: monospace;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.card-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 10.5px; font-weight: 600;
+  padding: 3px 9px; border-radius: 20px;
+  background: rgba(0,194,168,0.1);
+  border: 1px solid rgba(0,194,168,0.2);
+  color: var(--teal);
+  width: fit-content;
+}
+.card-badge::before {
+  content: '';
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--teal);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%,100%{opacity:1;} 50%{opacity:0.3;}
+}
+@keyframes fadeUp {
+  from { opacity:0; transform: translateY(12px); }
+  to   { opacity:1; transform: translateY(0); }
+}
+
+.card:nth-child(1)  { animation-delay: .03s; }
+.card:nth-child(2)  { animation-delay: .06s; }
+.card:nth-child(3)  { animation-delay: .09s; }
+.card:nth-child(4)  { animation-delay: .12s; }
+.card:nth-child(5)  { animation-delay: .15s; }
+.card:nth-child(6)  { animation-delay: .18s; }
+.card:nth-child(7)  { animation-delay: .21s; }
+.card:nth-child(8)  { animation-delay: .24s; }
+.card:nth-child(9)  { animation-delay: .27s; }
+.card:nth-child(10) { animation-delay: .30s; }
+.card:nth-child(11) { animation-delay: .33s; }
+.card:nth-child(12) { animation-delay: .36s; }
+.card:nth-child(13) { animation-delay: .39s; }
+.card:nth-child(14) { animation-delay: .42s; }
+.card:nth-child(15) { animation-delay: .45s; }
+.card:nth-child(16) { animation-delay: .48s; }
+.card:nth-child(17) { animation-delay: .51s; }
+.card:nth-child(18) { animation-delay: .54s; }
+.card:nth-child(19) { animation-delay: .57s; }
+.card:nth-child(20) { animation-delay: .60s; }
+.card:nth-child(21) { animation-delay: .63s; }
+.card:nth-child(22) { animation-delay: .66s; }
+
+/* ── NO RESULTS ── */
+.no-results {
+  grid-column: 1/-1;
+  text-align: center; padding: 60px 20px;
+  color: var(--muted); font-size: 14px; display: none;
+}
+.no-results-icon { font-size: 40px; margin-bottom: 12px; }
+
+/* ── FOOTER ── */
+.footer {
+  position: relative; z-index: 10;
+  text-align: center; padding: 20px;
+  font-size: 11.5px; color: var(--muted);
+  border-top: 1px solid var(--border);
+}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--panel2); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="logo-wrap">
+    <div class="logo-badge">LM</div>
+    <div class="logo-text">Lokal Money <span>BI</span></div>
+  </div>
+  <div class="header-right">
+    <div class="header-title">Portal de Dashboards</div>
+    <div class="merchant-count">22 <span>comercios activos</span></div>
+  </div>
+</header>
+
+<div class="search-wrap">
+  <div style="position:relative;flex:1;max-width:420px;">
+    <span class="search-icon">🔍</span>
+    <input class="search-input" type="text" id="search"
+           placeholder="Buscar comercio…" oninput="filterCards()"/>
+  </div>
+  <span class="result-count" id="resultCount">22 resultados</span>
+</div>
+
+<main class="main">
+  <div class="grid" id="grid">
+
+    <!-- Cards generadas por JS -->
+
+  </div>
+  <div class="no-results" id="noResults">
+    <div class="no-results-icon">🔍</div>
+    <div>No se encontró ningún comercio con ese nombre</div>
+  </div>
+</main>
+
+<footer class="footer">
+  Lokal Money BI · Todos los dashboards se actualizan automáticamente a diario
+</footer>
+
+<script>
+const MERCHANTS = [
+  { name: "Alvaro Bazán Estrada",               repo: "bi-alvaro-bazan" },
+  { name: "BAJA ALLIANCE",                       repo: "bi-baja-alliance" },
+  { name: "CON ACENTO",                          repo: "bi-con-acento" },
+  { name: "Concierge",                           repo: "bi-concierge" },
+  { name: "COORDINADOS",                         repo: "bi-coordinados" },
+  { name: "CRUZ ROJA MEXICANA",                  repo: "bi-cruz-roja-mexicana" },
+  { name: "HOGAZA HOGAZA",                       repo: "bi-hogaza" },
+  { name: "Lokal Money",                         repo: "bi-lokal-money" },
+  { name: "Lokal Pool",                          repo: "bi-lokal-pool" },
+  { name: "LokalMoney",                          repo: "bi-lokalmoney" },
+  { name: "Mariela Alonso Ablanedo",             repo: "bi-mariela-alonso-ablanedo" },
+  { name: "MIPTECH",                             repo: "bi-miptech" },
+  { name: "Odoo",                                repo: "bi-odoo" },
+  { name: "Petlicious",                          repo: "bi-petlicious" },
+  { name: "PRONOIA",                             repo: "bi-pronoia" },
+  { name: "PSF Shipping",                        repo: "bi-psf-shipping" },
+  { name: "RAMALHOS HORNOS MEXICO",              repo: "bi-ramalhos-hornos-mexico" },
+  { name: "Seguro Mar",                          repo: "bi-seguro-mar" },
+  { name: "START BUSINESS BUILDER AND CONSULTING", repo: "bi-start-business" },
+  { name: "TI AMBIENTAL",                        repo: "bi-ti-ambiental" },
+  { name: "TREVIÑO TI",                          repo: "bi-trevino-ti" },
+  { name: "YAAKUNAJ",                            repo: "bi-yaakunaj" },
+];
+
+const BASE = "https://lokal-money.github.io";
+
+function initials(name) {
+  return name.split(/\s+/).slice(0, 2).map(w => w[0]).join('').toUpperCase();
+}
+
+function buildCards(list) {
+  const grid = document.getElementById('grid');
+  grid.innerHTML = list.map((m, i) => {
+    const url = `${BASE}/${m.repo}/`;
+    return `
+      <a class="card" href="${url}" target="_blank" rel="noopener"
+         style="animation-delay:${i * 0.03}s">
+        <div class="card-header">
+          <div class="card-avatar">${initials(m.name)}</div>
+          <div class="card-arrow">↗</div>
+        </div>
+        <div class="card-name">${m.name}</div>
+        <div class="card-url">${url}</div>
+        <div class="card-badge">Dashboard activo</div>
+      </a>`;
+  }).join('');
+}
+
+function filterCards() {
+  const q = document.getElementById('search').value.toLowerCase().trim();
+  const filtered = q ? MERCHANTS.filter(m => m.name.toLowerCase().includes(q)) : MERCHANTS;
+  buildCards(filtered);
+  document.getElementById('resultCount').textContent =
+    filtered.length + (filtered.length === 1 ? ' resultado' : ' resultados');
+  document.getElementById('noResults').style.display = filtered.length === 0 ? 'block' : 'none';
+  document.getElementById('grid').style.display = filtered.length === 0 ? 'none' : 'grid';
+}
+
+// Init
+buildCards(MERCHANTS);
+</script>
+</body>
+</html>
