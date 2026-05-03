@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portal · Lokal Money BI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F7F7F5;--surface:#FFFFFF;--border:#E2E2DC;
+  --text:#1A1A18;--muted:#7A7A75;--hint:#C0C0BA;
+  --green:#1E6641;--green-bg:#E4F5EC;--green-border:#B2DECA;
+  --blue:#1D4ED8;--blue-bg:#DBEAFE;--blue-border:#93C5FD;
+  --gray-bg:#F1F1EE;--gray-border:#D8D8D2;
+  --mono:'IBM Plex Mono',monospace;
+  --sans:'DM Sans',system-ui,sans-serif;
+  --r-sm:8px;--r-md:12px;--r-lg:16px;
+}
+[data-theme=dark]{
+  --bg:#0F0F0E;--surface:#1A1A18;--border:#2C2C28;
+  --text:#F0F0EC;--muted:#888880;--hint:#444440;
+  --green:#4ADE80;--green-bg:#0D3320;--green-border:#166534;
+  --blue:#60A5FA;--blue-bg:#1A2E4A;--blue-border:#1E40AF;
+  --gray-bg:#252522;--gray-border:#3A3A35;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;transition:background .2s,color .2s;-webkit-font-smoothing:antialiased}
+
+/* ── LOGIN ── */
+#login-screen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:100}
+.login-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:2.5rem 2.25rem;width:360px;box-shadow:0 4px 24px rgba(0,0,0,.06)}
+.login-brand{display:flex;align-items:center;gap:10px;margin-bottom:2rem}
+.logo-mark{width:34px;height:34px;border-radius:9px;background:var(--text);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.logo-mark svg{width:18px;height:18px}
+.login-brand .bname{font-size:15px;font-weight:600;letter-spacing:-.2px}
+.login-subtitle{font-size:13px;color:var(--muted);margin-bottom:1.75rem;line-height:1.5}
+.field-label{font-size:12px;font-weight:500;color:var(--muted);margin-bottom:6px;display:block}
+.pw-wrap{position:relative;margin-bottom:.75rem}
+.pw-wrap input{width:100%;padding:.7rem 2.75rem .7rem 1rem;border:1px solid var(--border);border-radius:var(--r-sm);font-size:14px;background:var(--bg);color:var(--text);font-family:var(--sans);outline:none;transition:border-color .15s}
+.pw-wrap input:focus{border-color:var(--text);box-shadow:0 0 0 3px rgba(26,26,24,.08)}
+.eye-btn{position:absolute;right:.8rem;top:50%;transform:translateY(-50%);cursor:pointer;color:var(--hint);background:none;border:none;font-size:15px;line-height:1;padding:0;transition:color .1s}
+.eye-btn:hover{color:var(--muted)}
+.login-err{color:#B91C1C;font-size:12px;margin-bottom:.75rem;display:none}
+.btn-primary{width:100%;padding:.75rem;background:var(--text);color:var(--bg);border:none;border-radius:var(--r-sm);font-size:14px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:opacity .15s}
+.btn-primary:hover{opacity:.82}
+
+/* ── APP ── */
+#app{display:none}
+header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 1.5rem;height:56px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:50}
+.h-brand{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.h-brand .logo-mark{width:28px;height:28px;border-radius:7px}
+.h-brand .logo-mark svg{width:14px;height:14px}
+.h-brand .bname{font-size:14px;font-weight:600}
+.h-div{width:1px;height:18px;background:var(--border)}
+.h-title{font-size:13px;color:var(--muted)}
+.h-right{margin-left:auto;display:flex;align-items:center;gap:6px}
+.icon-btn{background:none;border:1px solid var(--border);border-radius:7px;padding:.3rem .65rem;cursor:pointer;font-size:12px;color:var(--muted);font-family:var(--sans);display:flex;align-items:center;gap:5px;transition:all .1s;white-space:nowrap}
+.icon-btn:hover{background:var(--gray-bg);color:var(--text);border-color:var(--gray-border)}
+
+main{padding:2rem 1.5rem;max-width:960px;margin:0 auto}
+
+/* ── HOLDING CARD ── */
+.holding-card{
+  background:var(--text);color:var(--bg);
+  border-radius:var(--r-lg);padding:1.5rem 1.75rem;
+  display:flex;align-items:center;justify-content:space-between;
+  gap:1rem;margin-bottom:2rem;flex-wrap:wrap;
+}
+.holding-card .hc-label{font-size:11px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;opacity:.55;margin-bottom:4px}
+.holding-card .hc-name{font-size:18px;font-weight:600;letter-spacing:-.2px}
+.holding-card .hc-sub{font-size:12px;opacity:.5;margin-top:2px}
+.holding-card .hc-btn{
+  padding:.65rem 1.4rem;border-radius:var(--r-sm);
+  background:rgba(247,247,245,.15);border:1px solid rgba(247,247,245,.25);
+  color:var(--bg);font-size:13px;font-weight:600;font-family:var(--sans);
+  cursor:pointer;text-decoration:none;display:block;
+  transition:background .15s;white-space:nowrap;
+}
+.holding-card .hc-btn:hover{background:rgba(247,247,245,.25)}
+
+/* ── SECTION HEADING ── */
+.section-heading{
+  font-size:11px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;
+  color:var(--muted);margin-bottom:1rem;
+}
+
+/* ── MERCHANT GRID ── */
+.merchant-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:12px;margin-bottom:2rem}
+
+.merchant-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r-md);overflow:hidden;
+  transition:box-shadow .15s,transform .12s,border-color .12s;
+}
+.merchant-card:hover{
+  box-shadow:0 6px 20px rgba(0,0,0,.07);
+  transform:translateY(-1px);border-color:var(--gray-border);
+}
+.mc-top{padding:1.1rem 1.25rem .9rem;border-bottom:1px solid var(--border)}
+.mc-negocio{font-size:11px;color:var(--hint);font-family:var(--mono);letter-spacing:.3px;margin-bottom:3px}
+.mc-name{font-size:15px;font-weight:600;letter-spacing:-.2px}
+.mc-meta{font-size:11px;color:var(--muted);margin-top:3px;display:flex;align-items:center;gap:6px}
+.tz-tag{font-family:var(--mono);font-size:10px;background:var(--gray-bg);border:1px solid var(--border);padding:1px 6px;border-radius:99px;color:var(--muted)}
+
+.mc-actions{padding:.9rem 1.25rem;display:flex;gap:8px;align-items:center}
+.btn-dashboard{
+  flex:1;padding:.55rem .75rem;border-radius:var(--r-sm);
+  background:var(--text);color:var(--bg);border:none;
+  font-size:12px;font-weight:600;font-family:var(--sans);
+  cursor:pointer;text-decoration:none;text-align:center;
+  display:flex;align-items:center;justify-content:center;gap:5px;
+  transition:opacity .15s;
+}
+.btn-dashboard:hover{opacity:.8}
+.btn-terminales{
+  padding:.55rem .85rem;border-radius:var(--r-sm);
+  background:var(--green-bg);color:var(--green);
+  border:1px solid var(--green-border);
+  font-size:12px;font-weight:600;font-family:var(--sans);
+  cursor:pointer;text-decoration:none;text-align:center;
+  display:flex;align-items:center;justify-content:center;gap:5px;
+  transition:all .15s;white-space:nowrap;
+}
+.btn-terminales:hover{background:var(--green);color:#fff;border-color:var(--green)}
+.btn-terminales-disabled{
+  padding:.55rem .85rem;border-radius:var(--r-sm);
+  background:var(--gray-bg);color:var(--hint);
+  border:1px solid var(--border);
+  font-size:12px;font-weight:500;font-family:var(--sans);
+  display:flex;align-items:center;justify-content:center;gap:5px;
+  white-space:nowrap;cursor:default;
+}
+.t-count{
+  font-size:10px;font-weight:700;
+  background:var(--green);color:#fff;
+  border-radius:99px;padding:1px 6px;margin-left:3px;
+}
+
+/* ── FOOTER ── */
+footer{border-top:1px solid var(--border);padding:1.25rem 1.5rem;text-align:center;font-size:12px;color:var(--hint)}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-brand">
+      <div class="logo-mark">
+        <svg viewBox="0 0 18 18" fill="none">
+          <path d="M3 13V5l6 4 6-4v8" stroke="#F7F7F5" stroke-width="1.8" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <span class="bname">Lokal Money</span>
+    </div>
+    <p class="login-subtitle">Portal de Business Intelligence<br>Acceso administrativo</p>
+    <label class="field-label">Contraseña</label>
+    <div class="pw-wrap">
+      <input type="password" id="pw-input" placeholder="••••••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+      <button class="eye-btn" onclick="toggleEye(this)">
+        <svg viewBox="0 0 20 20" fill="none" width="16" height="16">
+          <path d="M1 10s3.5-6 9-6 9 6 9 6-3.5 6-9 6-9-6-9-6z" stroke="currentColor" stroke-width="1.5"/>
+          <circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.5"/>
+        </svg>
+      </button>
+    </div>
+    <div class="login-err" id="login-err">Contraseña incorrecta.</div>
+    <button class="btn-primary" onclick="doLogin()">Ingresar →</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <header>
+    <div class="h-brand">
+      <div class="logo-mark">
+        <svg viewBox="0 0 18 18" fill="none">
+          <path d="M3 13V5l6 4 6-4v8" stroke="#F7F7F5" stroke-width="1.8" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <span class="bname">Lokal Money</span>
+    </div>
+    <div class="h-div"></div>
+    <span class="h-title">Portal BI</span>
+    <div class="h-right">
+      <button class="icon-btn" onclick="toggleTheme()" id="theme-btn">🌙 Oscuro</button>
+      <button class="icon-btn" onclick="doLogout()">✕ Salir</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- Holding -->
+    <div class="holding-card" id="holding-card"></div>
+
+    <!-- Merchants -->
+    <div class="section-heading">Merchants activos</div>
+    <div class="merchant-grid" id="merchant-grid"></div>
+  </main>
+
+  <footer>Lokal Money BI · Uso interno</footer>
+</div>
+
+<script>
+const ACCESS_PASSWORD = "sigma-terra-8269";
+const MERCHANTS = [{"name": "Hogaza", "negocio": "HOGAZA HOGAZA", "repo": "bi-hogaza", "timezone": "UTC-7", "password": "dash-delta-9566", "has_terminales": false}, {"name": "Concierge", "negocio": "Concierge", "repo": "bi-concierge", "timezone": "UTC-6", "password": "plaza-prime-3307", "has_terminales": false}, {"name": "BNI PRONOIA", "negocio": "PRONOIA", "repo": "bi-pronoia", "timezone": "UTC-6", "password": "bravo-fino-6911", "has_terminales": false}, {"name": "Petlicious", "negocio": "Petlicious", "repo": "bi-petlicious", "timezone": "UTC-6", "password": "dash-nueva-5266", "has_terminales": false}, {"name": "Baja Alliance / Toros Tijuana", "negocio": "TORO ALIMENTOS", "repo": "bi-baja-alliance", "timezone": "UTC-7", "password": "azul-bravo-7284", "has_terminales": true, "terminales_count": 91}, {"name": "Álvaro Bazán Estrada", "negocio": "Alvaro Bazán Estrada", "repo": "bi-alvaro-bazan", "timezone": "UTC-6", "password": "nova-libre-3786", "has_terminales": false}];
+const HOLDING = {"name": "Lokal Money Holding", "repo": "bi-holding", "password": "Lokal#2026"};
+
+
+function doLogin(){
+  if(document.getElementById('pw-input').value===ACCESS_PASSWORD){
+    document.getElementById('login-err').style.display='none';
+    document.getElementById('login-screen').style.display='none';
+    document.getElementById('app').style.display='block';
+    buildPortal();
+  } else {
+    document.getElementById('login-err').style.display='block';
+    document.getElementById('pw-input').select();
+  }
+}
+function doLogout(){
+  document.getElementById('app').style.display='none';
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('pw-input').value='';
+}
+function toggleEye(btn){
+  const i=document.getElementById('pw-input');
+  i.type=i.type==='password'?'text':'password';
+  btn.style.opacity=i.type==='text'?'1':'.5';
+}
+
+let dark=false;
+function toggleTheme(){
+  dark=!dark;
+  document.documentElement.setAttribute('data-theme',dark?'dark':'');
+  document.getElementById('theme-btn').textContent=dark?'☀ Claro':'🌙 Oscuro';
+}
+
+const BASE = 'https://lokal-money.github.io/';
+
+function buildPortal(){
+  // Holding card
+  document.getElementById('holding-card').innerHTML=
+    '<div>'+
+      '<div class="hc-label">Consolidado</div>'+
+      '<div class="hc-name">'+esc(HOLDING.name)+'</div>'+
+      '<div class="hc-sub">Todos los merchants</div>'+
+    '</div>'+
+    '<a href="'+BASE+HOLDING.repo+'/" target="_blank" class="hc-btn">Dashboard consolidado ↗</a>';
+
+  // Merchant cards
+  const grid=document.getElementById('merchant-grid');
+  grid.innerHTML='';
+  MERCHANTS.forEach(m=>{
+    const dashUrl=BASE+m.repo+'/';
+    const termUrl=BASE+m.repo+'/terminales.html';
+    const termBtn = m.has_terminales
+      ? '<a href="'+termUrl+'" target="_blank" class="btn-terminales">'+
+          '⊞ Terminales'+
+          (m.terminales_count?'<span class="t-count">'+m.terminales_count+'</span>':'')+
+        '</a>'
+      : '<span class="btn-terminales-disabled">⊞ Sin terminales</span>';
+
+    grid.innerHTML+=
+      '<div class="merchant-card">'+
+        '<div class="mc-top">'+
+          '<div class="mc-negocio">'+esc(m.negocio)+'</div>'+
+          '<div class="mc-name">'+esc(m.name)+'</div>'+
+          '<div class="mc-meta">'+
+            '<span class="tz-tag">'+esc(m.timezone)+'</span>'+
+          '</div>'+
+        '</div>'+
+        '<div class="mc-actions">'+
+          '<a href="'+dashUrl+'" target="_blank" class="btn-dashboard">📊 Dashboard ↗</a>'+
+          termBtn+
+        '</div>'+
+      '</div>';
+  });
+}
+
+function esc(s){
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+</script>
+</body>
+</html>
