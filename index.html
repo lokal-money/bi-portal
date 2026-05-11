@@ -290,6 +290,56 @@ body::before {
 .login-error.show { display: block; }
 @keyframes shake { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-6px);} 75%{transform:translateX(6px);} }
 
+
+/* ── LOGIN ── */
+.login-overlay {
+  position: fixed; inset: 0; z-index: 9999;
+  background: #0a0f1a;
+  display: flex; align-items: center; justify-content: center;
+  transition: opacity .4s;
+}
+.login-overlay.hidden { opacity: 0; pointer-events: none; }
+.login-card {
+  background: #111827; border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 18px; padding: 40px 44px;
+  width: 100%; max-width: 380px;
+  display: flex; flex-direction: column; align-items: center; gap: 22px;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.5);
+}
+.login-logo {
+  width: 52px; height: 52px;
+  background: linear-gradient(135deg, #00c2a8, #00a88f);
+  border-radius: 13px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 800; font-size: 22px; color: #fff;
+}
+.login-title { font-weight: 700; font-size: 18px; color: #e2e8f0; }
+.login-sub { font-size: 13px; color: #64748b; margin-top: -14px; }
+.login-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: #64748b; }
+.login-input-wrap { position: relative; width: 100%; }
+.login-input {
+  width: 100%; background: #1a2333; border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 9px; padding: 11px 40px 11px 14px;
+  font-family: 'Barlow', sans-serif; font-size: 14px; color: #e2e8f0;
+  outline: none; transition: border-color .2s; box-sizing: border-box;
+}
+.login-input:focus { border-color: rgba(0,194,168,0.5); }
+.eye-btn {
+  position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+  background: none; border: none; cursor: pointer; color: #64748b;
+  font-size: 17px; line-height: 1; padding: 2px;
+}
+.login-btn {
+  width: 100%; background: linear-gradient(135deg, #00c2a8, #00a88f);
+  border: none; border-radius: 9px; padding: 12px;
+  font-family: 'Barlow', sans-serif; font-size: 14px; font-weight: 700; color: #fff;
+  cursor: pointer;
+}
+.login-btn:hover { opacity: 0.88; }
+.login-error { font-size: 12.5px; color: #e85d5d; display: none; }
+.login-error.show { display: block; }
+
 </style>
 </head>
 <body>
@@ -297,6 +347,22 @@ body::before {
 <div class="login-overlay" id="loginOverlay">
   <div class="login-card">
     <div class="login-logo">LM</div>
+    <div class="login-title">Lokal Money BI</div>
+    <div class="login-sub">Acceso restringido</div>
+    <div style="width:100%;display:flex;flex-direction:column;gap:6px;">
+      <div class="login-label">Contrasena</div>
+      <div class="login-input-wrap">
+        <input class="login-input" type="password" id="loginPass"
+               placeholder="..." onkeydown="if(event.key==='Enter') doLogin()"/>
+        <button onclick="togglePass()" type="button" class="eye-btn" id="eyeBtn">o</button>
+      </div>
+    </div>
+    <div class="login-error" id="loginError">Contrasena incorrecta</div>
+    <button class="login-btn" onclick="doLogin()">Ingresar</button>
+  </div>
+</div>
+
+
     <div class="login-title">Lokal Money BI</div>
     <div class="login-sub">Acceso restringido</div>
     <div style="width:100%;display:flex;flex-direction:column;gap:6px;">
@@ -391,7 +457,7 @@ function buildCards(list) {
   grid.innerHTML = list.map((m, i) => {
     const url = `${BASE}/${m.repo}/`;
     return `
-      <a class="card" href="${url}" target="_blank" rel="noopener"
+      <a class="card" href="#" onclick="openDash('${m.repo}'); return false"
          style="animation-delay:${i * 0.03}s">
         <div class="card-header">
           <div class="card-avatar">${initials(m.name)}</div>
@@ -417,30 +483,28 @@ function filterCards() {
 // Init
 buildCards(MERCHANTS);
 
-const ACCESS_PASSWORD = 'lokalbi2026';
-const SESSION_KEY = 'lm_bi_auth';
+
+
+
+const PORTAL_PASSWORD = 'sigma-terra-8269';
+const SESSION_KEY = 'lm_portal_auth';
+const DASH_PASSWORDS = {"bi-hogaza": "dash-delta-9566", "bi-concierge": "plaza-prime-3307", "bi-pronoia": "bravo-fino-6911", "bi-petlicious": "dash-nueva-5266", "bi-baja-alliance": "azul-bravo-7284", "bi-alvaro-bazan": "nova-libre-3786", "bi-holding": "Lokal#2026"};
+
 function togglePass() {
   const inp = document.getElementById('loginPass');
   const btn = document.getElementById('eyeBtn');
-  if (inp.type === 'password') {
-    inp.type = 'text';
-    btn.style.color = '#00c2a8';
-    btn.innerHTML = '🙈';
-  } else {
-    inp.type = 'password';
-    btn.style.color = '#64748b';
-    btn.innerHTML = '👁';
-  }
+  if (inp.type === 'password') { inp.type = 'text'; btn.style.color = '#00c2a8'; }
+  else { inp.type = 'password'; btn.style.color = '#64748b'; }
 }
 
 function doLogin() {
   const val = document.getElementById('loginPass').value;
   const err = document.getElementById('loginError');
-  if (val === ACCESS_PASSWORD) {
-    try { sessionStorage.setItem(SESSION_KEY, '1'); } catch(e){}
+  if (val === PORTAL_PASSWORD) {
+    try { sessionStorage.setItem(SESSION_KEY, '1'); } catch(e) {}
     const o = document.getElementById('loginOverlay');
     o.classList.add('hidden');
-    setTimeout(() => o.style.display='none', 400);
+    setTimeout(() => o.style.display = 'none', 400);
     err.classList.remove('show');
   } else {
     err.classList.add('show');
@@ -448,11 +512,18 @@ function doLogin() {
     document.getElementById('loginPass').focus();
   }
 }
-(function(){
+
+function openDash(repo) {
+  const pwd = DASH_PASSWORDS[repo] || '';
+  const url = 'https://lokal-money.github.io/' + repo + '/' + (pwd ? '#' + encodeURIComponent(pwd) : '');
+  window.open(url, '_blank');
+}
+
+(function() {
   let authed = false;
-  try { authed = sessionStorage.getItem(SESSION_KEY)==='1'; } catch(e){}
-  if (authed) { document.getElementById('loginOverlay').style.display='none'; }
-  else { setTimeout(()=>document.getElementById('loginPass').focus(),100); }
+  try { authed = sessionStorage.getItem(SESSION_KEY) === '1'; } catch(e) {}
+  if (authed) { document.getElementById('loginOverlay').style.display = 'none'; }
+  else { setTimeout(() => document.getElementById('loginPass').focus(), 100); }
 })();
 
 </script>
